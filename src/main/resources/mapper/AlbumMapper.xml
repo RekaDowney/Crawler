@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="me.junbin.crawler.repository.AlbumRepo">
+
+    <insert id="insert" parameterType="album">
+        INSERT INTO ALBUM (TITLE, FIRST_PAGE_URL, LOCAL_PATH) VALUES
+        (#{title}, #{firstPageUrl}, #{localPath})
+        <selectKey resultType="long" statementType="STATEMENT" keyProperty="id" keyColumn="ID">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM ALBUM
+        WHERE ID = #{id}
+    </delete>
+
+    <update id="updateById" parameterType="album">
+        UPDATE ALBUM
+        SET TITLE          = #{title},
+            FIRST_PAGE_URL = #{firstPageUrl},
+            LOCAL_PATH     = #{localPath}
+        WHERE ID = #{id}
+    </update>
+
+    <sql id="albumColumns">
+        ${ALBUM}.ID             albumId,
+        ${ALBUM}.TITLE          albumTitle,
+        ${ALBUM}.FIRST_PAGE_URL albumFirstPageUrl,
+        ${ALBUM}.LOCAL_PATH     albumLocalPath
+    </sql>
+
+    <select id="findById" resultMap="albumResultMap">
+        SELECT
+        <include refid="albumColumns">
+            <property name="ALBUM" value="A"/>
+        </include>
+        FROM ALBUM A
+        WHERE A.ID = #{id}
+    </select>
+
+    <resultMap id="albumResultMap" type="album">
+        <id property="id" column="albumId"/>
+        <result property="title" column="albumTitle"/>
+        <result property="firstPageUrl" column="albumFirstPageUrl"/>
+        <result property="localPath" column="albumLocalPath"/>
+    </resultMap>
+
+</mapper>

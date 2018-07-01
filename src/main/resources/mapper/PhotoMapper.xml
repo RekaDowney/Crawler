@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="me.junbin.crawler.repository.PhotoRepo">
+
+    <insert id="insert" parameterType="photo">
+        INSERT INTO PHOTO (URL, ORDINAL, LOCAL_PATH, ALBUM_ID) VALUES
+        (#{url}, #{ordinal}, #{localPath}, #{albumId})
+        <selectKey resultType="long" statementType="STATEMENT" keyProperty="id" keyColumn="ID">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+
+    <insert id="batchInsert" useGeneratedKeys="true" keyColumn="ID" keyProperty="id">
+        INSERT INTO PHOTO (URL, ORDINAL, LOCAL_PATH, ALBUM_ID) VALUES
+        <foreach collection="collection" item="photo" separator=",">
+            (#{photo.url}, #{photo.ordinal}, #{photo.localPath}, #{photo.albumId})
+        </foreach>
+    </insert>
+
+    <delete id="deleteById">
+        DELETE FROM PHOTO
+        WHERE ID = #{id}
+    </delete>
+
+    <update id="updateById" parameterType="photo">
+        UPDATE PHOTO
+        SET URL        = #{url},
+            ORDINAL    = #{ordinal},
+            ALBUM_ID   = #{albumId},
+            LOCAL_PATH = #{localPath}
+        WHERE ID = #{id}
+    </update>
+
+    <sql id="photoColumns">
+        ${PHOTO}.ID         photoId,
+        ${PHOTO}.URL        photoUrl,
+        ${PHOTO}.ORDINAL    photoOrdinal,
+        ${PHOTO}.LOCAL_PATH photoLocalPath,
+        ${PHOTO}.ALBUM_ID   photoAlbumId
+    </sql>
+
+    <select id="findById" resultMap="photoResultMap">
+        SELECT
+        <include refid="photoColumns">
+            <property name="PHOTO" value="P"/>
+        </include>
+        FROM PHOTO P
+        WHERE P.ID = #{id}
+    </select>
+
+    <select id="findByAlbumId" resultMap="photoResultMap">
+        SELECT
+        <include refid="photoColumns">
+            <property name="PHOTO" value="P"/>
+        </include>
+        FROM PHOTO P
+        WHERE P.ALBUM_ID = #{albumId}
+    </select>
+
+    <resultMap id="photoResultMap" type="photo">
+        <id property="id" column="photoId"/>
+        <result property="url" column="photoUrl"/>
+        <result property="ordinal" column="photoOrdinal"/>
+        <result property="localPath" column="photoLocalPath"/>
+        <result property="albumId" column="photoAlbumId"/>
+    </resultMap>
+
+</mapper>
